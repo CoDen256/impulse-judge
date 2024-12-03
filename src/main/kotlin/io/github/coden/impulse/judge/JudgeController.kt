@@ -10,13 +10,16 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @RestController
 class JudgeController(
     private val wellpass: Wellpass,
 ) {
     val rule: Rule<CheckIns> = WellpassRule()
+    val timeRule: Rule<LocalDateTime> = TimeRule()
 
     @GetMapping("/")
     fun index(): String {
@@ -28,7 +31,7 @@ class JudgeController(
             .checkins(LocalDate.now().minusMonths(4), LocalDate.now())
             .timeout(Duration.ofSeconds(60))
             .map {
-                val match = rule.test(it)
+                val match = rule.test(it).and(timeRule.test(LocalDateTime.now()))
                 val innocent = match.allowed || hard
                 Verdict(!innocent, match.reason, it)
             }
