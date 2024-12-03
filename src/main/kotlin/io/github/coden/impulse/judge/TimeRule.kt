@@ -27,7 +27,7 @@ class TimeRule(): Rule<LocalDateTime> {
     private fun isWork(): (LocalDateTime) -> Match = (isWorkTime() and isWorkDay())
 
     private fun isWorkTime(): (LocalDateTime) -> Match = {
-         (!it.toLocalTime().isAfter(workTimeFrom) && !it.toLocalTime().isBefore(workTimeTo)).ifFailed(
+         (!it.toLocalTime().isBefore(workTimeFrom) && !it.toLocalTime().isAfter(workTimeTo)).ifFailed(
              "Not a work time"
          )
     }
@@ -41,7 +41,7 @@ class TimeRule(): Rule<LocalDateTime> {
     }
 
     private fun isChillTime(): (LocalDateTime) -> Match = {
-        (it.dayOfWeek in listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY))
+        (it.dayOfWeek in listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY))
             .ifFailed("Not a chill time")
     }
 

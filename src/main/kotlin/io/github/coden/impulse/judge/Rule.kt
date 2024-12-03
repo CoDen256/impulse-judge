@@ -11,10 +11,10 @@ data class Match(
 
 
     infix  fun and(other: Match): Match {
-        return Match(allowed && other.allowed, "("+reason+"&"+other.reason+")")
+        return Match(allowed && other.allowed, "("+reason+" && "+other.reason+")")
     }
     infix fun or(other: Match): Match {
-        return Match(allowed && other.allowed, "("+reason+"|"+other.reason+")")
+        return Match(allowed || other.allowed, "("+reason+" || "+other.reason+")")
     }
 
     companion object {
