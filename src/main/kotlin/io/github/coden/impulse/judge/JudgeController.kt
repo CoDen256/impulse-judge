@@ -32,7 +32,7 @@ class JudgeController(
             .map {
                 val match = rule.test(it).and(timeRule.test(LocalDateTime.now()))
                 val innocent = match.allowed || hard
-                Verdict(!innocent, match.reason, it)
+                Verdict(!innocent, match.reason, it.copy(checkIns = it.checkIns.sortedByDescending { it.checkInDate }))
             }
             .map {
                 if (it.guilty){

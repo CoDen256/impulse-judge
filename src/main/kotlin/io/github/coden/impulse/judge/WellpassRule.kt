@@ -9,7 +9,8 @@ class WellpassRule : Rule<CheckIns> {
         val checkIns = entity.checkIns
         val last = checkIns.maxByOrNull { it.checkInDate }
         return checkIns
-            .filter { it.name.lowercase().contains("yoga|boulder|fitness first|kletter|fit/one".toRegex()) }
+            .filter { it.name.lowercase().contains("yoga|boulder|fitness first|kletter|fit/one".toRegex()) &&
+            it.name.lowercase().contains("leipzig|plagwitz".toRegex())}
             .any { it.checkInDate.isAfter(LocalDateTime.now().minusDays(5)) }
             .ifFailed("Last checkin was more than 5 days ago:  ${last?.name} on ${last?.checkInDate}")
     }

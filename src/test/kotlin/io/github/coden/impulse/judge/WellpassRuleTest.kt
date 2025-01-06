@@ -24,6 +24,9 @@ class WellpassRuleTest {
             CheckIn("Kletterhalle NO LIMIT Leipzig", LocalDateTime.now())))))
         assertEquals(Match(true, "ok"), WellpassRule().test(CheckIns(listOf(
             CheckIn("FIT/ONE Leipzig", LocalDateTime.now())))))
+
+        assertEquals(false, WellpassRule().test(CheckIns(listOf(
+            CheckIn("Vinya Loft Yogastudio Bremen", LocalDateTime.now())))).allowed)
         assertEquals(false, WellpassRule().test(CheckIns(listOf(
             CheckIn("Fitness", LocalDateTime.now())))).allowed)
 

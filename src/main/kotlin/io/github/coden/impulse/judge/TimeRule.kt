@@ -8,10 +8,10 @@ import java.time.LocalTime
 class TimeRule(): Rule<LocalDateTime> {
 
     private val workTimeFrom = LocalTime.of(9, 0)
-    private val workTimeTo = LocalTime.of(18, 0)
+    private val workTimeTo = LocalTime.of(16, 0)
 
     override fun test(entity: LocalDateTime): Match {
-        return (isWork() or isChillTime()).invoke(entity)
+        return (isWork() or isScheduled()).invoke(entity)
     }
 
 
@@ -28,21 +28,27 @@ class TimeRule(): Rule<LocalDateTime> {
 
     private fun isWorkTime(): (LocalDateTime) -> Match = {
          (!it.toLocalTime().isBefore(workTimeFrom) && !it.toLocalTime().isAfter(workTimeTo)).ifFailed(
-             "Not a work time"
+             "Not a work time (09:00-16:00)"
          )
     }
 
     private fun isWorkDay(): (LocalDateTime) -> Match = {
         (it.dayOfWeek != DayOfWeek.SATURDAY
+                && it.dayOfWeek != DayOfWeek.MONDAY
                 && it.dayOfWeek != DayOfWeek.SUNDAY
                 && it.dayOfWeek != DayOfWeek.FRIDAY).ifFailed(
-                    "Not a work day"
+                    "Not a home office work day (tue,wed,thu)"
                 )
     }
 
     private fun isChillTime(): (LocalDateTime) -> Match = {
-        (it.dayOfWeek in listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY))
+        (it.dayOfWeek in listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY,DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY))
             .ifFailed("Not a chill time")
+    }
+
+    private fun isScheduled(): (LocalDateTime) -> Match = {
+        (it.dayOfWeek in listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.SATURDAY))
+            .ifFailed("Not scheduled (mo,tue,thu,sat)")
     }
 
 }
