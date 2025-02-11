@@ -1,6 +1,7 @@
 package io.github.coden.impulse.judge.rules
 
 import io.github.coden.impulse.judge.api.Match
+import io.github.coden.impulse.judge.api.Match.Companion.asMatch
 import io.github.coden.impulse.judge.api.Rule
 import io.github.coden.wellpass.api.CheckIns
 import java.time.LocalDateTime

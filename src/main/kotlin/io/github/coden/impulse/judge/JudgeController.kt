@@ -6,6 +6,7 @@ import io.github.coden.impulse.judge.api.Rule
 import io.github.coden.impulse.judge.rules.AbsenceRule
 import io.github.coden.impulse.judge.rules.HardCheckRule
 import io.github.coden.impulse.judge.rules.TimeRule
+import io.github.coden.impulse.judge.rules.WellpassRule
 import io.github.coden.wellpass.api.CheckIns
 import io.github.coden.wellpass.api.Wellpass
 import org.springframework.http.HttpStatus
