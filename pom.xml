@@ -33,6 +33,11 @@
     <dependencies>
         <dependency>
             <groupId>io.github.coden</groupId>
+            <artifactId>calendar-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.coden</groupId>
             <artifactId>wellpass-api</artifactId>
             <version>1.0</version>
         </dependency>

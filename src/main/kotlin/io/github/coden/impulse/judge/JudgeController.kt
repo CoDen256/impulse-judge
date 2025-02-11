@@ -1,5 +1,11 @@
 package io.github.coden.impulse.judge
 
+import io.github.coden.absence.api.AbsenceService
+import io.github.coden.absence.api.OutOfOffice
+import io.github.coden.impulse.judge.api.Rule
+import io.github.coden.impulse.judge.rules.AbsenceRule
+import io.github.coden.impulse.judge.rules.HardCheckRule
+import io.github.coden.impulse.judge.rules.TimeRule
 import io.github.coden.wellpass.api.CheckIns
 import io.github.coden.wellpass.api.Wellpass
 import org.springframework.http.HttpStatus
@@ -16,32 +22,45 @@ import java.time.LocalDateTime
 @RestController
 class JudgeController(
     private val wellpass: Wellpass,
+    private val absenceService: AbsenceService
 ) {
-    val rule: Rule<CheckIns> = WellpassRule()
+    val wellpassRule: Rule<CheckIns> = WellpassRule()
     val timeRule: Rule<LocalDateTime> = TimeRule()
+    val absenceRule: Rule<List<OutOfOffice>> = AbsenceRule()
+    val hardRule: Rule<Boolean> = HardCheckRule()
 
     @GetMapping("/")
     fun index(): String {
         return "Hi."
     }
+
     @GetMapping("/check")
     fun check(@RequestParam(required = false, defaultValue = "false") hard: Boolean): Mono<ResponseEntity<Verdict>> {
         return wellpass
             .checkins(LocalDate.now().minusMonths(4), LocalDate.now())
             .timeout(Duration.ofSeconds(60))
             .map {
-                val match = rule.test(it).and(timeRule.test(LocalDateTime.now()))
-                val innocent = match.allowed || hard
-                Verdict(!innocent, match.reason, it.copy(checkIns = it.checkIns.sortedByDescending { it.checkInDate }))
+                val absences = try {
+                    absenceService.getAbsences()
+                } catch (e: Exception) {
+                    emptyList()
+                }
+                val match = (wellpassRule(it).and(timeRule(LocalDateTime.now())))
+                    .or(absenceRule(absences))
+                    .or(hardRule(hard))
+                Verdict(
+                    match.allowed,
+                    match.reason,
+                    it.copy(checkIns = it.checkIns.sortedByDescending { it.checkInDate })
+                )
             }
             .map {
-                if (it.guilty){
+                if (!it.innocent) {
                     ResponseEntity
                         .status(HttpStatus.FORBIDDEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(it)
-                }
-                else ResponseEntity
+                } else ResponseEntity
                     .ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(it)
@@ -55,9 +74,13 @@ class JudgeController(
             .timeout(Duration.ofSeconds(60))
     }
 
+    @GetMapping("/absence")
+    fun absence(): Mono<List<OutOfOffice>> {
+        return Mono.fromSupplier { absenceService.getAbsences() }
+    }
 
     data class Verdict(
-        val guilty: Boolean,
+        val innocent: Boolean,
         val reason: String,
         val evidence: Any?,
     )
